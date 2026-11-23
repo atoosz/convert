@@ -130,6 +130,8 @@ public static class FF
         var filters = new List<string>();
         if (s.Fps > 0) filters.Add($"fps={s.Fps}");
         if (s.VideoHeight > 0) filters.Add($"scale=-2:min(ih\\,{s.VideoHeight})");
+        // 4:2:0 and 4:2:2 encoders refuse odd sizes; drop the last row/column (a no-op for even sizes).
+        filters.Add("crop=trunc(iw/2)*2:trunc(ih/2)*2:0:0");
 
         string[] audio = ["-c:a", "aac", "-b:a", "192k"];
         var hw = s.Hardware ? HardwareEncoder.Vendor : null;
@@ -169,7 +171,7 @@ public static class FF
                 v.AddRange(["-c:v", "libsvtav1", "-crf", $"{Crf(46, 20)}", "-preset", "8"]);
                 break;
         }
-        if (filters.Count > 0) v.AddRange(["-vf", string.Join(",", filters)]);
+        v.AddRange(["-vf", string.Join(",", filters)]);
 
         if (s.KeepAudio && p.HasAudio)
         {

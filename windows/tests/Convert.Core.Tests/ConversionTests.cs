@@ -66,6 +66,18 @@ public sealed class ConversionTests : IDisposable
         Assert.True(FF.ProbeFile(out_).HasVideo);
     }
 
+    // H.264 and HEVC in 4:2:0 refuse odd sizes; the last row and column are dropped (issue #29).
+    [Theory]
+    [InlineData("mp4-h264")]
+    [InlineData("mp4-hevc")]
+    [InlineData("mkv")]
+    public async Task OddFrameSize(string id)
+    {
+        var odd = Make("odd.webm", "-f", "lavfi", "-i", "testsrc2=size=321x241:rate=25:duration=1", "-c:v", "libvpx");
+        var out_ = (await Run(odd, id, new ConvSettings { Hardware = false })).Single();
+        Assert.True(FF.ProbeFile(out_).HasVideo);
+    }
+
     [Fact]
     public async Task SoftwareHevcWithResize()
     {

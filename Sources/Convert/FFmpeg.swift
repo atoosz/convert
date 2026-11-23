@@ -115,6 +115,8 @@ enum FF {
 
         if s.fps > 0 { filters.append("fps=\(s.fps)") }
         if s.videoHeight > 0 { filters.append("scale=-2:min(ih\\,\(s.videoHeight))") }
+        // 4:2:0 and 4:2:2 encoders refuse odd sizes; drop the last row/column (a no-op for even sizes).
+        filters.append("crop=trunc(iw/2)*2:trunc(ih/2)*2:0:0")
 
         var audio = ["-c:a", "aac_at", "-b:a", "192k"]
         switch t.id {
@@ -153,7 +155,7 @@ enum FF {
             v += ["-c:v", "libsvtav1", "-crf", "\(Int((46 - q * 20).rounded()))", "-preset", "8"]
         default: break
         }
-        if !filters.isEmpty { v += ["-vf", filters.joined(separator: ",")] }
+        v += ["-vf", filters.joined(separator: ",")]
 
         if s.keepAudio && p.hasAudio {
             v += ["-map", "0:a:0"] + audio

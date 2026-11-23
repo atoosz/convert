@@ -386,6 +386,10 @@ if ($FFmpeg) {
     Invoke-FFmpeg "stream.ts" @("-f", "lavfi", "-i", "testsrc2=size=320x240:rate=30:duration=2",
         "-f", "lavfi", "-i", "sine=frequency=660:sample_rate=48000:duration=2",
         "-c:v", "mpeg2video", "-q:v", "5", "-pix_fmt", "yuv420p", "-c:a", "mp2", "-shortest", "-f", "mpegts")
+    # Odd width and height, which H.264 and HEVC can't store as they are (issue #29).
+    Invoke-FFmpeg "odd.webm" @("-f", "lavfi", "-i", "testsrc2=size=321x241:rate=30:duration=1",
+        "-f", "lavfi", "-i", "sine=frequency=550:sample_rate=48000:duration=1",
+        "-c:v", "libvpx", "-c:a", "libopus", "-shortest")
 } elseif (Test-Path -LiteralPath (Join-Path $Samples "sample.pdf")) {
     New-SampleWithApp "sample.pdf" "pdf-png" "sample.png" "png-sample"
 }
@@ -426,7 +430,7 @@ if ($FFmpeg) {
 
 # --- Conversions -----------------------------------------------------------------------------
 
-$NeedsFFmpeg = @("sample.mp4", "stream.ts", "sample.wav")
+$NeedsFFmpeg = @("sample.mp4", "stream.ts", "odd.webm", "sample.wav")
 $Documents = @("sample.md", "sample.txt", "script.ts", "sample.docx")
 
 # Mirrors DocConv.NeedsLibreOffice: Word/ODT/RTF in or out needs it; Markdown and text to PDF, HTML
@@ -450,7 +454,7 @@ function Skip-OrFail-Missing([string]$Label, [string]$Name, [string]$Target) {
     }
 }
 
-foreach ($name in "sample.mp4", "stream.ts", "sample.wav", "sample.png", "sample.md", "sample.txt", "script.ts",
+foreach ($name in "sample.mp4", "stream.ts", "odd.webm", "sample.wav", "sample.png", "sample.md", "sample.txt", "script.ts",
                   "sample.pdf", "sample.docx", "sample.ttf", "sample.ttc", "sample.woff", "sample.woff2") {
     $sample = Join-Path $Samples $name
     $exists = Test-Path -LiteralPath $sample -PathType Leaf

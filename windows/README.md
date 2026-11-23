@@ -201,8 +201,9 @@ How the code is put together is in [ARCHITECTURE.md](ARCHITECTURE.md).
 ```
 
 The smoke test (`smoke-test.ps1`; `-Keep`, `-Out DIR`, `-Strict`, `-RequireLibreOffice`) generates small
-sample files (a 24-bit 96 kHz WAV, a short video with sound, a PNG, Markdown, plain text, a PDF and a
-Word file made by the app, two `.ts` files: TypeScript and an MPEG transport stream, and fonts copied
+sample files (a 24-bit 96 kHz WAV, a short video with sound, a video with an odd width and height, a
+PNG, Markdown, plain text, a PDF and a Word file made by the app, two `.ts` files: TypeScript and an
+MPEG transport stream, and fonts copied
 from `C:\Windows\Fonts`) and converts each one to every format the app offers for it. Any failed
 conversion fails the run and is listed by format ID; samples and logs are kept. It needs ffmpeg; without
 it, audio and video formats are skipped locally (CI treats that as a failure). Conversions that need

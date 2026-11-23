@@ -205,6 +205,9 @@ if [[ -n "$FFMPEG" ]]; then
   # A real MPEG transport stream, the other meaning of .ts.
   ff -f lavfi -i "testsrc2=size=320x240:rate=30:duration=2" -f lavfi -i "sine=frequency=660:sample_rate=48000:duration=2" \
     -c:v mpeg2video -q:v 5 -pix_fmt yuv420p -c:a mp2 -shortest -f mpegts "$SAMPLES/stream.ts"
+  # Odd width and height, which H.264 and HEVC can't store as they are (issue #29).
+  ff -f lavfi -i "testsrc2=size=321x241:rate=30:duration=1" -f lavfi -i "sine=frequency=550:sample_rate=48000:duration=1" \
+    -c:v libvpx -c:a libopus -shortest "$SAMPLES/odd.webm"
 elif [[ -f "$SAMPLES/sample.pdf" ]]; then
   sips -s format png "$SAMPLES/sample.pdf" --out "$SAMPLES/sample.png" >/dev/null
 fi
@@ -249,8 +252,8 @@ fi
 
 # --- Conversions ----------------------------------------------------------------------
 
-NEEDS_FFMPEG=" sample.mp4 stream.ts sample.wav sample.png "
-for name in sample.mp4 stream.ts sample.wav sample.png sample.md sample.txt script.ts sample.pdf \
+NEEDS_FFMPEG=" sample.mp4 stream.ts odd.webm sample.wav sample.png "
+for name in sample.mp4 stream.ts odd.webm sample.wav sample.png sample.md sample.txt script.ts sample.pdf \
   sample.ttf sample.ttc sample.woff sample.woff2; do
   sample="$SAMPLES/$name"
   # Ask the app which formats it offers for this file (same logic as the window). It may look
